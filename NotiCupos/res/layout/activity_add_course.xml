@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:columnCount="1"
+    android:orientation="vertical"
+    android:paddingLeft="0dp"
+    android:paddingRight="5dp"
+    android:paddingTop="15dp" >
+
+    <EditText
+        android:id="@+id/editTimeFreq"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/txtNotificationFreq"
+        android:layout_toRightOf="@+id/txtNotificationFreq"
+        android:ems="10"
+        android:inputType="number"
+        android:lines="1"
+        android:maxLength="5" >
+
+        <requestFocus />
+    </EditText>
+
+    <Spinner
+        android:id="@+id/spinnerDeptos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editTimeFreq"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="14dp"
+        android:entries="@array/deptos"
+        android:padding="0dp"
+        android:prompt="@string/deptos_prompt" />
+
+    <TextView
+        android:id="@+id/txtNotificationFreq"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/spinnerDeptos"
+        android:layout_alignParentTop="true"
+        android:paddingLeft="7dp"
+        android:paddingRight="10dp"
+        android:text="@string/add_crn"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="25sp" />
+
+    <Button
+        android:id="@+id/butSaveSettings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/spinnerDeptos"
+        android:layout_centerHorizontal="true"
+        android:text="@string/add_course" />
+
+</RelativeLayout>

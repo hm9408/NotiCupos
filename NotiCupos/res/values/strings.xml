@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">NotiCupos</string>
+    
+    <string name="delete">Eliminar</string>
+    
+    <string name="courses">Cursos</string>
+    <string name="section">Sección:</string>
+    <string name="crn">CRN:</string>
+    <string name="empty_list">No has agregado cursos.</string>
+    <string name="remaining">Cupos restantes:</string>
+    <string name="last_update">Última actualización:</string>
+    <string name="add_course">Agregar</string>
+    <string name="por_crn">Por CRN:</string>
+    <string name="add_crn">CRN</string>
+    <string name="add_depto">Depto</string>
+    
+    <string name="settings">Opciones</string>
+    <string name="notif_freq">Notificar cada</string>
+    <string name="semester">Periodo</string>
+    <string name="save">Guardar</string>
+    
+    <string name="about">Acerca de…</string>
+    <string name="creator">Hugo Zuleta</string>
+    <string name="institution">Universidad de los Andes</string>
+    <string name="team">ACM</string>
+    
+
+    <string name="time_prompt">Seleccione el tiempo…</string>
+    <string-array name="time">
+        <item>Minutos</item>
+        <item>horas</item>
+    </string-array>
+
+    <!-- DEPARTAMENTOS -->
+    <string name="deptos_prompt">Seleccione un departamento…</string>
+
+    <string-array name="deptos">
+        <item>ADMI(Administración)</item>
+        <item>ANTR(Antropología)</item>
+        <item>ARQU(Arquitectura)</item>
+        <item>ARTE(Arte)</item>
+        <item>ARTI(Maestría Arquitecturas Tecnologías de Inform.)</item>
+        <item>AUTO(Automatización de Procesos Industriales)</item>
+        <item>BCOM(Maestría en Biología Computacional)</item>
+        <item>BIOL(Biología)</item>
+        <item>CISO(Ciencias Sociales)</item>
+        <item>CPOL(Ciencias Políticas)</item>
+        <item>CSOF(Contrucción de Software)</item>
+        <item>DADM(Doctorado en Administración)</item>
+        <item>DCOM(Derecho Comercial)</item>
+        <item>DDER(Doctorado en Derecho)</item>
+        <item>DECA(Decanatura de Estudiantes)</item>
+        <item>DEIN(Maestría en Derecho Internacional)</item>
+        <item>DENI(Derecho Negocios Internacionales)</item>
+        <item>DEPO(Deportes)</item>
+        <item>DEPR(Maestría en Derecho Privado)</item>
+        <item>DERE(Derecho)</item>
+        <item>DIGS(Especialización Diseño y Gestión Social de Tecnología)</item>
+        <item>DISE(Diseño)</item>
+        <item>DLIT(Doctorado en Literatura)</item>
+        <item>DPUB(Maestría Derecho Público Gestión Administrativa)</item>
+        <item>ECON(Economía)</item>
+        <item>EDUC(Educación)</item>
+        <item>EECO(Especialización en Economía)</item>
+        <item>EECO(Escuela de Gobierno)</item>
+        <item>EINT(Maestría en Estudios Internacionales)</item>
+        <item>ESIO(Sistemas de Información)</item>
+        <item>FILO(Filosofía)</item>
+        <item>FISI(Física)</item>
+        <item>GEOC(Geociencias)</item>
+        <item>GPUB(Gestión Pública)</item>
+        <item>GTEL(Gerencia Empresas de Telecomunicaciones)</item>
+        <item>HART(Historia del Arte)</item>
+        <item>HIST(Historia)</item>
+        <item>IBIO(Ingeniería Biomédica)</item>
+        <item>ICYA(Ingeniería Civil y Ambiental)</item>
+        <item>IELE(Ingeniería Eléctrica y Electrónica)</item>
+        <item>IGEN(Ingeniería General)</item>
+        <item>IIND(Ingeniería Industrial)</item>
+        <item>IMEC(Ingeniería Mecánica)</item>
+        <item>IQUI(Ingeniería Química)</item>
+        <item>ISIS(Ingeniería de Sistemas y Computación)</item>
+        <item>LEGI(Legislación Financiera)</item>
+        <item>LENG(Lenguajes y Estudios Socioculturales)</item>
+        <item>LITE(Literatura)</item>
+        <item>MADM(Maestría en Administración)</item>
+        <item>MATE(Matemáticas)</item>
+        <item>MBAE(MBA Ejecutivo)</item>
+        <item>MBIO(Microbiología)</item>
+        <item>MBIT(Maestría en Tecnolog.Inform. para el Negocio)</item>
+        <item>MDER(Maestría en Derecho)</item>
+        <item>MDIS(Maestría en Diseño)</item>
+        <item>MECU(Maestría en Estudios Culturales)</item>
+        <item>MEDI(Medicina)</item>
+        <item>MESO(Maestría en Estudios Organizacionales)</item>
+        <item>MFIN(Maestría en Finanzas)</item>
+        <item>MGAP(Maestría en Gerencia Ambiental)</item>
+        <item>MGEO(Maestría en Geografía)</item>
+        <item>MGPD(Maestría en Gerencia y Práctica del Desarrollo)</item>
+        <item>MISO(Maestría en Ingeniería de Software)</item>
+        <item>MLIT(Maestría en Literatura)</item>
+        <item>MMER(Maestría en Mercadeo)</item>
+        <item>MPER(Maestría en Periodismo)</item>
+        <item>MSIN(Maestría Seguridad Información)</item>
+        <item>MUSI(Música)</item>
+        <item>PERI(Periodismo)</item>
+        <item>PLEN(Maestría Pedagogía Lenguas Extranjeras)</item>
+        <item>PSCL(Maestría en Psicología Clínica y la Salud)</item>
+        <item>PSIC(Psicología)</item>
+        <item>QUIM(Química)</item>
+        <item>RJUR(Régimen Jurid.Finan.Cont.Imp.)</item>
+        <item>SAFE(Seguridad de la Información)</item>
+        <item>SICO(Sist.de Control Organiz.y Gest.)</item>
+        <item>STRA(Sistemas de Transmisión)</item>
+    </string-array>
+
+</resources>
