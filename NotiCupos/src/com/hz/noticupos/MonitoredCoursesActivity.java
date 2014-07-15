@@ -229,8 +229,10 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 
 	public void removeCourse(Course c)
 	{
+		String titulo = c.getTitulo();
 		monitored.remove(c);
 		myListAdapter.notifyDataSetChanged();
+		Toast.makeText(context, "El curso \""+titulo+"\" se eliminó correctamente", Toast.LENGTH_SHORT).show();
 		//saveState(monitored); TODO
 	}
 
