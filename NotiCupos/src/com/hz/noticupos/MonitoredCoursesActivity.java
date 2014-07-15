@@ -88,37 +88,17 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 				android.R.color.holo_green_light, 
 				android.R.color.holo_orange_light, 
 				android.R.color.holo_red_light);
-		//		IntentService updateService = new IntentService("updateService") {
-		//
-		//			@Override
-		//			protected void onHandleIntent(Intent intent) {
-		//				// TODO Auto-generated method stub
-		//				while(true){
-		//					if (updateTime.equals("Horas")) {
-		//
-		//						try {
-		//							updateCoursesInfo();
-		//							wait(freqUpdate*3600000);
-		//						} catch (InterruptedException e) {
-		//							// TODO Auto-generated catch block
-		//							e.printStackTrace();
-		//						}
-		//					}
-		//					else if (updateTime.equals("Minutos")) {						
-		//						try {
-		//							updateCoursesInfo();
-		//							wait(freqUpdate*60000);
-		//						} catch (InterruptedException e) {
-		//							// TODO Auto-generated catch block
-		//							e.printStackTrace();
-		//						}
-		//					}		
-		//				}				
-		//			}
-		//		};
-		//
-		//		Intent serviceInt = new Intent(this, IntentService.class);
-		//		updateService.startService(serviceInt);
+	}	
+
+	@Override
+	public void onRefresh() {
+		new Handler().postDelayed(new Runnable() {
+			@Override public void run() {
+				//Refresh all courses in the list
+				updateCoursesInfo();
+				swipeLayout.setRefreshing(false);
+			}
+		}, 10000);
 	}
 
 	@Override
@@ -216,17 +196,6 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 		Date d= new Date();
 		this.lastUpdate = sdf.format(d);
 		//saveState(monitored); TODO
-	}	
-
-	@Override
-	public void onRefresh() {
-		new Handler().postDelayed(new Runnable() {
-			@Override public void run() {
-				//Refresh all courses in the list
-				updateCoursesInfo();
-				swipeLayout.setRefreshing(false);
-			}
-		}, 10000);
 	}
 
 	public Course searchCourseCRN(String CRN, String depto)
@@ -254,7 +223,7 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 		}
 		else
 		{
-			Toast.makeText(this, "No se encontró el curso.\n\rVerifique los datos e intente nuevamente.", Toast.LENGTH_SHORT).show();
+			Toast.makeText(context, "No se encontró el curso.\n\rVerifique los datos e intente nuevamente.", Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -363,25 +332,23 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 				XPathExpression expr = xpath.compile("//tr[td[normalize-space(font) = '"+params[1]+"']]/td/font/text()");
 				NodeList result = (NodeList)expr.evaluate(doc, XPathConstants.NODESET);
 				if (result!=null) {
-					String crn = result.item(0).getNodeValue();
-					String cod = result.item(1).getNodeValue();
-					//				String seccion = result.item(2).getNodeValue(); //TODO: fix
-					//				String credits = result.item(3).getNodeValue(); //TODO: fix
-					//				String titulo = result.item(4).getNodeValue();
-					//				String cupo = result.item(5).getNodeValue();
-					//				String inscritos = result.item(6).getNodeValue();
-					//				String disponibles = result.item(7).getNodeValue();
-					//				searched = new Course(crn, cod, seccion, credits, titulo, cupo, inscritos, disponibles);
-					String titulo = result.item(2).getNodeValue();
-					String cupo = result.item(3).getNodeValue();
-					String inscritos = result.item(4).getNodeValue();
-					String disponibles = result.item(5).getNodeValue();
-					searched = new Course(crn, cod, "1", "3", titulo, cupo,
-							inscritos, disponibles);
-				}
-				else
-				{
-					Toast.makeText(context, "Problema al conectarse con Registro.\n\rIntente más tarde.", Toast.LENGTH_SHORT).show();
+					if (result.getLength()!=0) {
+						String crn = result.item(0).getNodeValue();
+						String cod = result.item(1).getNodeValue();
+						//				String seccion = result.item(2).getNodeValue(); //TODO: fix
+						//				String credits = result.item(3).getNodeValue(); //TODO: fix
+						//				String titulo = result.item(4).getNodeValue();
+						//				String cupo = result.item(5).getNodeValue();
+						//				String inscritos = result.item(6).getNodeValue();
+						//				String disponibles = result.item(7).getNodeValue();
+						//				searched = new Course(crn, cod, seccion, credits, titulo, cupo, inscritos, disponibles);
+						String titulo = result.item(2).getNodeValue();
+						String cupo = result.item(3).getNodeValue();
+						String inscritos = result.item(4).getNodeValue();
+						String disponibles = result.item(5).getNodeValue();
+						searched = new Course(crn, cod, "1", "3", titulo, cupo,
+								inscritos, disponibles);
+					}
 				}
 					
 			} 
