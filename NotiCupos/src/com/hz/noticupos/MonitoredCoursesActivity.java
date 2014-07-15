@@ -1,13 +1,12 @@
 package com.hz.noticupos;
 
-import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInput;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -31,9 +30,9 @@ import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
@@ -54,16 +53,22 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MonitoredCoursesActivity extends ListActivity implements OnRefreshListener {
+public class MonitoredCoursesActivity extends ListActivity implements OnRefreshListener, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -639702177724593006L;
 	private SwipeRefreshLayout swipeLayout;
 	private ArrayList<Course> monitored;
 	private String lastUpdate;
 	private ListView myList;
 	private MyListAdapter myListAdapter;
-	Context context;
-	//	private int freqUpdate;
-	//	private String updateTime;
+	private transient Context context;
+	public static final String FILE = "noticupos.data";
+	private NotificationService notifServ;
+	private int freqUpdate;
+	private String updateTime;
 
 
 	@Override
@@ -71,9 +76,11 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 		super.onCreate(savedInstanceState);
 		context = this;
 		setContentView(R.layout.activity_main);
-		if (loadState()==null) {
+		loadState();
+		if (monitored==null) {
 			monitored = new ArrayList<Course>();
 		}
+
 		myList=(ListView)findViewById(android.R.id.list);
 		myListAdapter = new MyListAdapter(context, R.layout.row, monitored);
 		View empty = findViewById(android.R.id.empty);
@@ -81,6 +88,8 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 		myList.setAdapter(myListAdapter);
 		myList.setLongClickable(true);
 		registerForContextMenu(myList);
+		myListAdapter.notifyDataSetChanged();
+		updateCoursesInfo();
 
 		swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
 		swipeLayout.setOnRefreshListener(this);
@@ -120,13 +129,24 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 			TextView txtNotifFreq = (TextView) settingsDialog.findViewById(R.id.txtNotificationFreq);
 			final Spinner spinTime = (Spinner) settingsDialog.findViewById(R.id.spinnerTime);
 			final EditText editNotifFreq = (EditText) settingsDialog.findViewById(R.id.editTimeFreq);
-
+			final int freq = Integer.parseInt(editNotifFreq.getText().toString());
+			final String selectedTime= spinTime.getSelectedItem().toString();
 			Button butSaveSettings = (Button) settingsDialog.findViewById(R.id.butSaveSettings);
+			
 			// if button is clicked, close the custom dialog
 			butSaveSettings.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					saveState(monitored);
+					if (selectedTime.equals("Minutos") && freq < 15) {
+						Toast.makeText(context, "La frecuencia de actualización no puede ser tan alta."
+								+ "\n\rIngrese un valor mayor a 15 minutos.", Toast.LENGTH_LONG).show();
+					}
+					else
+					{
+						setFreqUpdate(freq);
+						setUpdateTime(selectedTime);
+						saveState(monitored);
+					}
 				}
 			});	 
 			settingsDialog.show();
@@ -195,7 +215,7 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 		Date d= new Date();
 		this.lastUpdate = sdf.format(d);
-		//saveState(monitored); TODO
+		saveState(monitored);
 	}
 
 	public Course searchCourseCRN(String CRN, String depto)
@@ -215,15 +235,23 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 
 	public void addCourseCRN(String CRN, String depto)
 	{
-		Course c = searchCourseCRN(CRN, depto);
-		if (c!=null) {
-			monitored.add(c);
-			System.out.println("Se agregó un curso ("+monitored.size()+" total):\n\r"+c.toString());
-			//saveState(monitored); TODO
+		boolean existe = false;
+		for (int i = 0; i < monitored.size() && !existe; i++) {
+			Course temp = monitored.get(i);
+			if (temp.getCRN().equals(CRN)) {
+				existe = true;
+				Toast.makeText(context, "Ya has agregado el curso "+temp.getTitulo()+" a tu lista.", Toast.LENGTH_SHORT).show();
+			}
 		}
-		else
-		{
-			Toast.makeText(context, "No se encontró el curso.\n\rVerifique los datos e intente nuevamente.", Toast.LENGTH_SHORT).show();
+		if (!existe) {
+			Course c = searchCourseCRN(CRN, depto);
+			if (c!=null) {
+				monitored.add(c);
+				System.out.println("Se agregó un curso ("+monitored.size()+" total):\n\r"+c.toString());
+				saveState(monitored);
+			}
+			else
+				Toast.makeText(context, "No se encontró el curso.\n\rVerifique los datos e intente nuevamente.", Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -233,12 +261,13 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 		monitored.remove(c);
 		myListAdapter.notifyDataSetChanged();
 		Toast.makeText(context, "El curso \""+titulo+"\" se eliminó correctamente", Toast.LENGTH_SHORT).show();
-		//saveState(monitored); TODO
+		saveState(monitored);
 	}
 
 	public void updateCoursesInfo()
 	{
 		if (monitored.size()!=0) {
+			Toast.makeText(context, "Actualizando cursos...", Toast.LENGTH_SHORT).show();
 			for (int i = 0; i < monitored.size(); i++) {
 				Course c = monitored.get(i);
 				c = searchCourseCRN(c.getCRN(), c.getDepto()); //updates every value
@@ -250,55 +279,84 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 		{
 			Toast.makeText(context, "No hay cursos para actualizar.", Toast.LENGTH_SHORT).show();
 		}
-		//saveState(monitored); TODO
+		saveState(monitored);
 	}
 
 	public void saveState(ArrayList<Course> courses){
-		ObjectOutput out;
 		try {
-			out = new ObjectOutputStream(new FileOutputStream("notiCupos.data"));        
-			out.writeObject(courses);
-			out.close();
-		} catch (Exception e) {e.printStackTrace();}
-	}
-
-	@SuppressWarnings("unchecked")
-	public ArrayList<Course> loadState(){
-		ObjectInput in;
-		ArrayList<Course> saved=null;
-		try {
-			in = new ObjectInputStream(new FileInputStream("notiCupos.data"));       
-			saved=(ArrayList<Course>) in.readObject();
-			in.close();
-			if (saved==null) {
-				System.out.println("Se cargaron 0 cursos");
-			}
-			else
-			{
-				System.out.println("Se cargaron "+saved.size()+ " cursos");
-			}
-		} 
-		catch (IOException e) {
-			//the file didn't exist and will now be created
+			FileOutputStream fos = openFileOutput(FILE, MODE_PRIVATE);
+			System.out.println("Is the fos null? "+fos==null);
+			ObjectOutputStream oos = new ObjectOutputStream(fos);
+			System.out.println("Is the oos null? "+oos==null);
+			oos.writeObject(monitored);
+			oos.close();
+			fos.close();
+			System.out.println("Saved "+monitored.size()+" courses into the app.");
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
-			File fileSave = new File(Environment.getDataDirectory(),"notiCupos.data");
-			try {
-				fileSave.createNewFile();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			System.out.println("Does the save file exist now? "+fileSave.exists());
-		} 
-		catch (ClassNotFoundException e) {
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return saved;
+		
 	}
 
+	@SuppressWarnings("unchecked")
+	public void loadState(){
+		try {
+			FileInputStream fis = openFileInput(FILE);
+			System.out.println("Is the fis null? "+fis==null);
+			ObjectInputStream ois = new ObjectInputStream(fis);
+			System.out.println("Is the ois null? "+ois==null);
+			monitored = (ArrayList<Course>) ois.readObject();
+			ois.close();
+			fis.close();
+			if (monitored!=null) {
+				System.out.println("Loaded "+monitored.size()+" courses into the app.");
+				Toast.makeText(context, "Se cargaron "+monitored.size()+" cursos.", Toast.LENGTH_SHORT).show();
+			}
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
+	public int getFreqUpdate() {
+		return freqUpdate;
+	}
 
+	public void setFreqUpdate(int freqUpdate) {
+		this.freqUpdate = freqUpdate;
+	}
+
+	public String getUpdateTime() {
+		return updateTime;
+	}
+
+	public void setUpdateTime(String updateTime) {
+		this.updateTime = updateTime;
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig)
+	{
+		super.onConfigurationChanged(newConfig);
+		setContentView(R.layout.activity_main);
+		myListAdapter.notifyDataSetChanged();
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////ASYNCTASK CLASS//////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	class SearchCourseTask extends AsyncTask<String, Void, Course> {
 
 		ProgressDialog progDailog;
@@ -352,7 +410,7 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 								inscritos, disponibles);
 					}
 				}
-					
+
 			} 
 			catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
@@ -378,7 +436,7 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.context_menu_delete, menu);
+		inflater.inflate(R.menu.context_menu, menu);
 	}
 
 	@Override
@@ -389,6 +447,17 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 		switch (item.getItemId()) {
 		case R.id.action_delete:
 			removeCourse(obj);
+			return true;
+		case R.id.action_details:
+			AlertDialog.Builder builder = new AlertDialog.Builder( new ContextThemeWrapper(this, android.R.style.Theme_Holo_Light_Dialog));
+
+
+			LayoutInflater inflater = (LayoutInflater) context.getSystemService(LAYOUT_INFLATER_SERVICE);
+			View layout = inflater.inflate(R.layout.activity_course_details,null);
+			builder.setView(layout);
+
+			builder.setTitle(R.string.details);
+			builder.show();
 			return true;
 		default:
 			return super.onContextItemSelected(item);

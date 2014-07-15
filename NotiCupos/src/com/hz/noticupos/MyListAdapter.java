@@ -52,6 +52,7 @@ public class MyListAdapter extends ArrayAdapter {
 
 		TextView txtCourseName = (TextView) convertView.findViewById(R.id.txtCourseName);
 		TextView txtRemaining = (TextView) convertView.findViewById(R.id.txtRemaining);
+		TextView txtTitle = (TextView) convertView.findViewById(R.id.txtTitulo);
 		TextView txtSection = (TextView) convertView.findViewById(R.id.txtSection);
 		TextView txtCRN = (TextView) convertView.findViewById(R.id.txtCRN);
 		TextView txtFecha = (TextView) convertView.findViewById(R.id.txtFecha);
@@ -60,6 +61,7 @@ public class MyListAdapter extends ArrayAdapter {
 		// 4. Set the text for textView 
 		txtCourseName.setText(itemsArrayList.get(position).getCod());
 		txtRemaining.setText(context.getString(R.string.remaining)+" "+itemsArrayList.get(position).getDisponibles());
+		txtTitle.setText(itemsArrayList.get(position).getTitulo());
 		txtSection.setText(context.getString(R.string.section)+" "+itemsArrayList.get(position).getSeccion());
 		txtCRN.setText(context.getString(R.string.add_crn)+" "+itemsArrayList.get(position).getCRN());
 		txtFecha.setText(context.getString(R.string.last_update)+" "+lastUpdate());

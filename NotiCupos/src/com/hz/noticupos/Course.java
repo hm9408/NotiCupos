@@ -1,7 +1,14 @@
 package com.hz.noticupos;
 
-public class Course {
+import java.io.Serializable;
+
+public class Course implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3669307741695714657L;
+
 	private String CRN;
 	
 	private String cod;

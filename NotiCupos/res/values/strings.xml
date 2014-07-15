@@ -4,6 +4,7 @@
     <string name="app_name">NotiCupos</string>
     
     <string name="delete">Eliminar</string>
+    <string name="details">Detalles</string>
     
     <string name="courses">Cursos</string>
     <string name="section">Sección:</string>
