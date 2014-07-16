@@ -25,7 +25,7 @@
     <string name="about">Acerca de…</string>
     <string name="creator">Hugo Zuleta</string>
     <string name="institution">Universidad de los Andes</string>
-    <string name="team">ACM</string>
+    <string name="team"><a href="http://acm.uniandes.edu.co\">ACM Uniandes</a></string>
     
 
     <string name="time_prompt">Seleccione el tiempo…</string>

@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="top|center"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:autoLink="web" >
 
     <TextView
         android:id="@+id/txtAppName"
@@ -26,13 +27,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/team"
+        android:textColor="#00C3FF"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/txtInstitution"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_marginBottom="300dp"
+        android:layout_marginBottom="25dp"
         android:layout_weight="0.37"
         android:text="@string/institution"
         android:textAppearance="?android:attr/textAppearanceMedium" />
