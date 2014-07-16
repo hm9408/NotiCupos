@@ -390,13 +390,15 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 		protected Course doInBackground(String... params) {
 			Course searched = null;
 			Document doc;
+			String depto = params[0].substring(0,4);
+			String CRN = params[1];
 			try {
 				doc = Jsoup
-						.connect("http://registroapps.uniandes.edu.co/scripts/adm_con_horario1_joomla.php?depto=IIND")
+						.connect("http://registroapps.uniandes.edu.co/scripts/adm_con_horario1_joomla.php?depto="+depto)
 						.timeout(20000)
 						.get();
 
-				Elements links = doc.select("font:containsOwn(10110)");
+				Elements links = doc.select("font:containsOwn("+CRN+")");
 				Elements tds = links.parents().first().siblingElements();
 				System.out.println("Done");
 				System.out.println();
