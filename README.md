@@ -8,3 +8,5 @@ App that notifies the user when the courses they plan to  run out of space.
 
 Future features:
 -suggest other not full sections for the same subject
+
+Screenshots: http://imgur.com/a/hejnr
