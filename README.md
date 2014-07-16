@@ -1,5 +1,9 @@
 NotiCupos
 =========
+<p align="center">
+  <img src="https://github.com/hm9408/NotiCupos/blob/master/NotiCupos%20fullsize.png?raw=true"/>
+</p>
+
 App that notifies the user when the courses they plan to  run out of space.
 -List with the added courses
 -Long-press each course to delete them or to see more information on it (schedule, teacher, etc.) //TODO
