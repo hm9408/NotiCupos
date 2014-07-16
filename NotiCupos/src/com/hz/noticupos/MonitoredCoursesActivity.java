@@ -7,22 +7,14 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.w3c.tidy.Tidy;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -66,7 +58,7 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 	private MyListAdapter myListAdapter;
 	private transient Context context;
 	public static final String FILE = "noticupos.data";
-	private NotificationService notifServ;
+//	private NotificationService notifServ;
 	private int freqUpdate;
 	private String updateTime;
 
@@ -89,7 +81,6 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 		myList.setLongClickable(true);
 		registerForContextMenu(myList);
 		myListAdapter.notifyDataSetChanged();
-		updateCoursesInfo();
 
 		swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
 		swipeLayout.setOnRefreshListener(this);
@@ -240,7 +231,7 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 			Course temp = monitored.get(i);
 			if (temp.getCRN().equals(CRN)) {
 				existe = true;
-				Toast.makeText(context, "Ya has agregado el curso "+temp.getTitulo()+" a tu lista.", Toast.LENGTH_SHORT).show();
+				Toast.makeText(context, "Ya has agregado el curso "+temp.getTitulo()+" a tu lista.", Toast.LENGTH_LONG).show();
 			}
 		}
 		if (!existe) {
@@ -251,7 +242,7 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 				saveState(monitored);
 			}
 			else
-				Toast.makeText(context, "No se encontró el curso.\n\rVerifique los datos e intente nuevamente.", Toast.LENGTH_SHORT).show();
+				Toast.makeText(context, "No se encontró el curso.\n\rVerifique los datos e intente nuevamente.", Toast.LENGTH_LONG).show();
 		}
 	}
 
@@ -378,47 +369,43 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 		@Override
 		protected Course doInBackground(String... params) {
 			Course searched = null;
-			URL url;
+			Document doc;
 			try {
-				url = new URL("http://registroapps.uniandes.edu.co/scripts/adm_con_horario1_joomla.php?depto="+params[0]);
-				Tidy tidy = new Tidy();
-				tidy.setQuiet(true);
-				tidy.setXHTML(true);    
-				tidy.setShowWarnings(false);
-				Document doc = tidy.parseDOM(url.openStream(), System.out);
+				doc = Jsoup
+				        .connect("http://registroapps.uniandes.edu.co/scripts/adm_con_horario1_joomla.php?depto=IIND")
+				        .timeout(20000)
+				        .get();
 
-				// Use XPath to obtain whatever you want from the (X)HTML
-				XPath xpath = XPathFactory.newInstance().newXPath();
-				XPathExpression expr = xpath.compile("//tr[td[normalize-space(font) = '"+params[1]+"']]/td/font/text()");
-				NodeList result = (NodeList)expr.evaluate(doc, XPathConstants.NODESET);
-				if (result!=null) {
-					if (result.getLength()!=0) {
-						String crn = result.item(0).getNodeValue();
-						String cod = result.item(1).getNodeValue();
-						//				String seccion = result.item(2).getNodeValue(); //TODO: fix
-						//				String credits = result.item(3).getNodeValue(); //TODO: fix
-						//				String titulo = result.item(4).getNodeValue();
-						//				String cupo = result.item(5).getNodeValue();
-						//				String inscritos = result.item(6).getNodeValue();
-						//				String disponibles = result.item(7).getNodeValue();
-						//				searched = new Course(crn, cod, seccion, credits, titulo, cupo, inscritos, disponibles);
-						String titulo = result.item(2).getNodeValue();
-						String cupo = result.item(3).getNodeValue();
-						String inscritos = result.item(4).getNodeValue();
-						String disponibles = result.item(5).getNodeValue();
-						searched = new Course(crn, cod, "1", "3", titulo, cupo,
-								inscritos, disponibles);
+		        Elements links = doc.select("font:containsOwn(10110)");
+		        Elements tds = links.parents().first().siblingElements();
+		        System.out.println("Done");
+				System.out.println();
+				String crn = "";
+				String cod = "";
+				String titulo = "";
+				String cupo = "";
+				String inscritos = "";
+				String disponibles = "";
+				String seccion = "";
+				String credits = "";
+				System.out.println("tds size: "+tds.size());
+				if (tds!=null) {
+					if (!tds.isEmpty()) {
+						crn = links.parents().first().text();
+						cod = tds.get(0).text();
+						seccion = tds.get(1).text();
+						credits = tds.get(2).text();
+						titulo = tds.get(3).text();
+						cupo = tds.get(4).text();
+						inscritos = tds.get(5).text();
+						disponibles = tds.get(6).text();
+						searched = new Course(crn, cod, seccion, credits, titulo, cupo, inscritos, disponibles);
 					}
 				}
-
-			} 
-			catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (XPathExpressionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("CRN: "+crn+", Código: "+cod+", Sección: "+seccion+", Créditos: "+credits+
+						", Título: "+titulo+"\n\tCupo total: "+cupo+", Inscritos: "+inscritos+", Disponibles: "+disponibles);
 			} catch (IOException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			return searched;
