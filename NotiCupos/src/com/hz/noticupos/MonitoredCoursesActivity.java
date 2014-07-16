@@ -58,7 +58,7 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 	private MyListAdapter myListAdapter;
 	private transient Context context;
 	public static final String FILE = "noticupos.data";
-//	private NotificationService notifServ;
+	//	private NotificationService notifServ;
 	private int freqUpdate;
 	private String updateTime;
 
@@ -81,6 +81,26 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 		myList.setLongClickable(true);
 		registerForContextMenu(myList);
 		myListAdapter.notifyDataSetChanged();
+		SwipeDismissListViewTouchListener touchListener =
+				new SwipeDismissListViewTouchListener(
+						myList,
+						new SwipeDismissListViewTouchListener.DismissCallbacks() {
+							public void onDismiss(ListView listView, int[] reverseSortedPositions) {
+								for (int position : reverseSortedPositions) {
+									Course obj = (Course) myList.getItemAtPosition(position);
+									removeCourse(obj);
+								}
+								
+							}
+
+							@Override
+							public boolean canDismiss(int position) {
+								// TODO Auto-generated method stub
+								return true;
+							}
+						});
+		myList.setOnTouchListener(touchListener);
+		myList.setOnScrollListener(touchListener.makeScrollListener());
 
 		swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
 		swipeLayout.setOnRefreshListener(this);
@@ -123,7 +143,7 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 			final int freq = Integer.parseInt(editNotifFreq.getText().toString());
 			final String selectedTime= spinTime.getSelectedItem().toString();
 			Button butSaveSettings = (Button) settingsDialog.findViewById(R.id.butSaveSettings);
-			
+
 			// if button is clicked, close the custom dialog
 			butSaveSettings.setOnClickListener(new OnClickListener() {
 				@Override
@@ -290,7 +310,7 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	@SuppressWarnings("unchecked")
@@ -372,13 +392,13 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 			Document doc;
 			try {
 				doc = Jsoup
-				        .connect("http://registroapps.uniandes.edu.co/scripts/adm_con_horario1_joomla.php?depto=IIND")
-				        .timeout(20000)
-				        .get();
+						.connect("http://registroapps.uniandes.edu.co/scripts/adm_con_horario1_joomla.php?depto=IIND")
+						.timeout(20000)
+						.get();
 
-		        Elements links = doc.select("font:containsOwn(10110)");
-		        Elements tds = links.parents().first().siblingElements();
-		        System.out.println("Done");
+				Elements links = doc.select("font:containsOwn(10110)");
+				Elements tds = links.parents().first().siblingElements();
+				System.out.println("Done");
 				System.out.println();
 				String crn = "";
 				String cod = "";
