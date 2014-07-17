@@ -1,53 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:columnCount="1"
     android:orientation="vertical"
     android:paddingLeft="5dp"
-    android:paddingRight="5dp"
-    android:paddingTop="15dp" >
+    android:paddingRight="5dp" >
 
-    <TextView
-        android:id="@+id/txtNotificationFreq"
-        android:layout_width="wrap_content"
+    <GridLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:paddingRight="10dp"
-        android:text="@string/notif_freq"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="20sp" />
+        android:columnCount="2" >
+        <Space />
 
-    <Spinner
-        android:id="@+id/spinnerTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/editTimeFreq"
-        android:layout_toRightOf="@+id/editTimeFreq"
-        android:entries="@array/time" />
+        <Spinner
+            android:id="@+id/spinnerTime"
+            android:layout_width="149dp"
+            android:layout_height="wrap_content"
+            android:layout_column="0"
+            android:layout_gravity="left|center_vertical"
+            android:layout_row="0"
+            android:entries="@array/time" />
+
+        <NumberPicker
+            android:id="@+id/numFreq"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_column="1"
+            android:layout_gravity="left|bottom"
+            android:layout_marginTop="15dp"
+            android:layout_row="0" />
+
+    </GridLayout>
 
     <Button
         android:id="@+id/butSaveSettings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/editTimeFreq"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp"
+        android:layout_gravity="center"
         android:text="@string/save" />
 
-    <EditText
-        android:id="@+id/editTimeFreq"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/txtNotificationFreq"
-        android:layout_below="@+id/txtNotificationFreq"
-        android:layout_marginTop="44dp"
-        android:ems="10"
-        android:inputType="number"
-        android:lines="1"
-        android:maxLength="2" >
-
-        <requestFocus />
-    </EditText>
-
-</RelativeLayout>
+</LinearLayout>

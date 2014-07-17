@@ -19,6 +19,11 @@
     
     <string name="settings">Opciones</string>
     <string name="notif_freq">Notificar cada</string>
+    <string name="time_prompt">Seleccione el tiempo…</string>
+    <string-array name="time">
+        <item>Minutos</item>
+        <item>Horas</item>
+    </string-array>
     <string name="semester">Periodo</string>
     <string name="save">Guardar</string>
     
@@ -28,11 +33,7 @@
     <string name="team"><a href="http://acm.uniandes.edu.co\">ACM Uniandes</a></string>
     
 
-    <string name="time_prompt">Seleccione el tiempo…</string>
-    <string-array name="time">
-        <item>Minutos</item>
-        <item>horas</item>
-    </string-array>
+    
 
     <!-- DEPARTAMENTOS -->
     <string name="deptos_prompt">Seleccione un departamento…</string>

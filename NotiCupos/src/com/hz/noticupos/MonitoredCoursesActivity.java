@@ -22,6 +22,7 @@ import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -38,9 +39,11 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.NumberPicker;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -72,6 +75,7 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 		if (monitored==null) {
 			monitored = new ArrayList<Course>();
 		}
+		loadPreferences();
 
 		myList=(ListView)findViewById(android.R.id.list);
 		myListAdapter = new MyListAdapter(context, R.layout.row, monitored);
@@ -128,35 +132,44 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 		return true;
 	}
 
-	@SuppressWarnings("unused")
+	@SuppressWarnings({ "unused", "rawtypes", "unchecked" })
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle item selection
 		switch (item.getItemId()) {
 		case R.id.action_settings:
 			final Dialog settingsDialog = new Dialog(this);
 			settingsDialog.setContentView(R.layout.activity_settings);
-			settingsDialog.setTitle("Opciones");
-			TextView txtNotifFreq = (TextView) settingsDialog.findViewById(R.id.txtNotificationFreq);
+			settingsDialog.setTitle(R.string.notif_freq);
+			final NumberPicker numFreq = (NumberPicker) settingsDialog.findViewById(R.id.numFreq);
 			final Spinner spinTime = (Spinner) settingsDialog.findViewById(R.id.spinnerTime);
-			final EditText editNotifFreq = (EditText) settingsDialog.findViewById(R.id.editTimeFreq);
-			final int freq = Integer.parseInt(editNotifFreq.getText().toString());
-			final String selectedTime= spinTime.getSelectedItem().toString();
+			ArrayAdapter myAdap = (ArrayAdapter) spinTime.getAdapter();
+			spinTime.setSelection(myAdap.getPosition(updateTime));
+			String[] nums = new String[46];
+			for(int i=0; i<nums.length; i++)
+			       nums[i] = Integer.toString(i);
+			numFreq.setMaxValue(45);
+			numFreq.setMinValue(0);
+			numFreq.setDisplayedValues(nums);
+			numFreq.setWrapSelectorWheel(false);
+			numFreq.setValue(freqUpdate);
+			
 			Button butSaveSettings = (Button) settingsDialog.findViewById(R.id.butSaveSettings);
-
 			// if button is clicked, close the custom dialog
 			butSaveSettings.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					if (selectedTime.equals("Minutos") && freq < 15) {
+					System.out.println("Num: "+numFreq.getValue());
+					System.out.println("Text: "+spinTime.getSelectedItem().toString());
+					if (spinTime.getSelectedItem().toString().equals("Minutos") && numFreq.getValue() < 15)
 						Toast.makeText(context, "La frecuencia de actualización no puede ser tan alta."
-								+ "\n\rIngrese un valor mayor a 15 minutos.", Toast.LENGTH_LONG).show();
-					}
+								+ "\nIngrese un valor mayor a 15 minutos.", Toast.LENGTH_LONG).show();
+					else if (numFreq.getValue()<0) Toast.makeText(context, "Ingrese un valor mayor a 0.", Toast.LENGTH_LONG).show(); 
 					else
 					{
-						setFreqUpdate(freq);
-						setUpdateTime(selectedTime);
-						saveState(monitored);
+						setFreqUpdate(numFreq.getValue());
+						setUpdateTime(spinTime.getSelectedItem().toString());
+						savePreferences();
+						settingsDialog.dismiss();
 					}
 				}
 			});	 
@@ -186,7 +199,7 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 					String departamento = spinDptos.getSelectedItem().toString().substring(0, 4);
 					System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!! "+departamento);
 					if (editCRN.getText().toString().length()<5) {
-						Toast.makeText(context, "El CRN debe tener 5 caracteres.\n\rVerifique los datos e intente nuevamente.", 
+						Toast.makeText(context, "El CRN debe tener 5 caracteres.\nVerifique los datos e intente nuevamente.", 
 								Toast.LENGTH_SHORT).show();
 					}
 					else
@@ -226,7 +239,7 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 		Date d= new Date();
 		this.lastUpdate = sdf.format(d);
-		saveState(monitored);
+		saveState();
 	}
 
 	public Course searchCourseCRN(String CRN, String depto)
@@ -258,11 +271,11 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 			Course c = searchCourseCRN(CRN, depto);
 			if (c!=null) {
 				monitored.add(c);
-				System.out.println("Se agregó un curso ("+monitored.size()+" total):\n\r"+c.toString());
-				saveState(monitored);
+				System.out.println("Se agregó un curso ("+monitored.size()+" total):\n"+c.toString());
+				saveState();
 			}
 			else
-				Toast.makeText(context, "No se encontró el curso.\n\rVerifique los datos e intente nuevamente.", Toast.LENGTH_LONG).show();
+				Toast.makeText(context, "No se encontró el curso.\nVerifique los datos e intente nuevamente.", Toast.LENGTH_LONG).show();
 		}
 	}
 
@@ -272,7 +285,7 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 		monitored.remove(c);
 		myListAdapter.notifyDataSetChanged();
 		Toast.makeText(context, "El curso \""+titulo+"\" se eliminó correctamente", Toast.LENGTH_SHORT).show();
-		saveState(monitored);
+		saveState();
 	}
 
 	public void updateCoursesInfo()
@@ -290,18 +303,16 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 		{
 			Toast.makeText(context, "No hay cursos para actualizar.", Toast.LENGTH_SHORT).show();
 		}
-		saveState(monitored);
+		saveState();
 	}
 
-	public void saveState(ArrayList<Course> courses){
+	public void saveState(){
 		try {
 			FileOutputStream fos = openFileOutput(FILE, MODE_PRIVATE);
-			System.out.println("Is the fos null? "+fos==null);
 			ObjectOutputStream oos = new ObjectOutputStream(fos);
-			System.out.println("Is the oos null? "+oos==null);
 			oos.writeObject(monitored);
 			oos.close();
-			fos.close();
+			fos.close();				
 			System.out.println("Saved "+monitored.size()+" courses into the app.");
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -317,9 +328,7 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 	public void loadState(){
 		try {
 			FileInputStream fis = openFileInput(FILE);
-			System.out.println("Is the fis null? "+fis==null);
 			ObjectInputStream ois = new ObjectInputStream(fis);
-			System.out.println("Is the ois null? "+ois==null);
 			monitored = (ArrayList<Course>) ois.readObject();
 			ois.close();
 			fis.close();
@@ -337,6 +346,23 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public void savePreferences()
+	{
+		SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putInt("Frecuencia de actualización", freqUpdate);
+		editor.putString("Tiempo de actualización", updateTime);
+		editor.commit();
+		Toast.makeText(context, "Se actualizarán sus cursos cada "+freqUpdate+" "+updateTime, Toast.LENGTH_LONG).show();
+	}
+	
+	public void loadPreferences()
+	{
+		SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+		freqUpdate = sharedPref.getInt("Frecuencia de actualización", 0);
+		updateTime = sharedPref.getString("Tiempo de actualización", "Minutos");
 	}
 
 	public int getFreqUpdate() {
