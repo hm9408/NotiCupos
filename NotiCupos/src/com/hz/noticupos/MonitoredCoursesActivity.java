@@ -17,6 +17,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
@@ -24,11 +25,14 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.text.Html;
 import android.view.ContextMenu;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -68,6 +72,9 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		ActionBar bar = getActionBar();
+		bar.setBackgroundDrawable(new ColorDrawable(Color.rgb(255, 179, 0)));
+		bar.setTitle(Html.fromHtml("<font color='#4F4F4F'>NotiCupos</font>"));
 		super.onCreate(savedInstanceState);
 		context = this;
 		setContentView(R.layout.activity_main);
@@ -160,7 +167,7 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 				public void onClick(View v) {
 					System.out.println("Num: "+numFreq.getValue());
 					System.out.println("Text: "+spinTime.getSelectedItem().toString());
-					if (spinTime.getSelectedItem().toString().equals("Minutos") && numFreq.getValue() < 15)
+					if (spinTime.getSelectedItem().toString().equals("minutos") && numFreq.getValue() < 15)
 						Toast.makeText(context, "La frecuencia de actualización no puede ser tan alta."
 								+ "\nIngrese un valor mayor a 15 minutos.", Toast.LENGTH_LONG).show();
 					else if (numFreq.getValue()<0) Toast.makeText(context, "Ingrese un valor mayor a 0.", Toast.LENGTH_LONG).show(); 
@@ -362,7 +369,7 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 	{
 		SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
 		freqUpdate = sharedPref.getInt("Frecuencia de actualización", 0);
-		updateTime = sharedPref.getString("Tiempo de actualización", "Minutos");
+		updateTime = sharedPref.getString("Tiempo de actualización", "minutos");
 	}
 
 	public int getFreqUpdate() {

@@ -21,8 +21,8 @@
     <string name="notif_freq">Notificar cada</string>
     <string name="time_prompt">Seleccione el tiempo…</string>
     <string-array name="time">
-        <item>Minutos</item>
-        <item>Horas</item>
+        <item>minutos</item>
+        <item>horas</item>
     </string-array>
     <string name="semester">Periodo</string>
     <string name="save">Guardar</string>

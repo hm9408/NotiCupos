@@ -18,7 +18,7 @@
             android:layout_weight="2"
             android:cacheColorHint="#000000"
             android:configChanges="keyboardHidden|orientation"
-            android:divider="#D5DDDE"
+            android:divider="#EBDAB5"
             android:dividerHeight="1dp"
             android:drawSelectorOnTop="false"
             android:focusableInTouchMode="false"
