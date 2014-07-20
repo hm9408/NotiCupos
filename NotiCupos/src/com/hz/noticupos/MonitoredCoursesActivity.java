@@ -15,6 +15,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
+import com.hz.noticupos.SwipeDismissListViewTouchListener.OnDismissCallback;
+
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.AlertDialog;
@@ -93,19 +95,13 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 		SwipeDismissListViewTouchListener touchListener =
 				new SwipeDismissListViewTouchListener(
 						myList,
-						new SwipeDismissListViewTouchListener.DismissCallbacks() {
+						new OnDismissCallback() {
 							public void onDismiss(ListView listView, int[] reverseSortedPositions) {
 								for (int position : reverseSortedPositions) {
 									Course obj = (Course) myList.getItemAtPosition(position);
 									removeCourse(obj);
 								}
 								
-							}
-
-							@Override
-							public boolean canDismiss(int position) {
-								// TODO Auto-generated method stub
-								return true;
 							}
 						});
 		myList.setOnTouchListener(touchListener);
