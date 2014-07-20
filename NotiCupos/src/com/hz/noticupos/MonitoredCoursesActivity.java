@@ -10,7 +10,6 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.concurrent.ExecutionException;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -60,7 +59,6 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 	private static final long serialVersionUID = -639702177724593006L;
 	private SwipeRefreshLayout swipeLayout;
 	private ArrayList<Course> monitored;
-	private String lastUpdate;
 	private ListView myList;
 	private MyListAdapter myListAdapter;
 	private transient Context context;
@@ -126,10 +124,16 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 		new Handler().postDelayed(new Runnable() {
 			@Override public void run() {
 				//Refresh all courses in the list
-				updateCoursesInfo();
+				if (monitored.size()!=0) {
+					for (int i = 0; i < monitored.size(); i++) {
+						Course c = monitored.get(i);
+						new SearchCourseTask(context).execute(c.getDepto(), c.getCRN(),""+i);
+						System.out.println(i);
+					}
+				}
 				swipeLayout.setRefreshing(false);
 			}
-		}, 10000);
+		}, 10);
 	}
 
 	@Override
@@ -237,31 +241,11 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 		}
 	}
 
-	public String getLastUpdate() {
-		return lastUpdate;
-	}
-
 	@SuppressLint("SimpleDateFormat")
-	public void updateLastUpdate() {
+	public String updateLastUpdate() {
 		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 		Date d= new Date();
-		this.lastUpdate = sdf.format(d);
-		saveState();
-	}
-
-	public Course searchCourseCRN(String CRN, String depto)
-	{
-		Course c = null;
-		try {
-			c = new SearchCourseTask(context).execute(depto, CRN).get();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return c;
+		return sdf.format(d);
 	}
 
 	public void addCourseCRN(String CRN, String depto)
@@ -275,14 +259,8 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 			}
 		}
 		if (!existe) {
-			Course c = searchCourseCRN(CRN, depto);
-			if (c!=null) {
-				monitored.add(c);
-				System.out.println("Se agregó un curso ("+monitored.size()+" total):\n"+c.toString());
-				saveState();
-			}
-			else
-				Toast.makeText(context, "No se encontró el curso.\nVerifique los datos e intente nuevamente.", Toast.LENGTH_LONG).show();
+			//starts the AsyncTask with an index of -1 so it knows it doesn't exist in the array.
+			new SearchCourseTask(context).execute(depto, CRN,"-1");			
 		}
 	}
 
@@ -292,24 +270,6 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 		monitored.remove(c);
 		myListAdapter.notifyDataSetChanged();
 		Toast.makeText(context, "El curso \""+titulo+"\" se eliminó correctamente", Toast.LENGTH_SHORT).show();
-		saveState();
-	}
-
-	public void updateCoursesInfo()
-	{
-		if (monitored.size()!=0) {
-			Toast.makeText(context, "Actualizando cursos...", Toast.LENGTH_SHORT).show();
-			for (int i = 0; i < monitored.size(); i++) {
-				Course c = monitored.get(i);
-				c = searchCourseCRN(c.getCRN(), c.getDepto()); //updates every value
-			}
-			updateLastUpdate();
-			myListAdapter.notifyDataSetChanged();
-		}
-		else
-		{
-			Toast.makeText(context, "No hay cursos para actualizar.", Toast.LENGTH_SHORT).show();
-		}
 		saveState();
 	}
 
@@ -406,6 +366,8 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 		ProgressDialog progDailog;
 
 		private Context context;
+		
+		private int index;
 
 		public SearchCourseTask(Context c)
 		{
@@ -415,7 +377,7 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			progDailog = ProgressDialog.show(context, "Agregar curso", "Buscando curso...", false, false);
+			progDailog = ProgressDialog.show(context, "Cursos", "Buscando cursos...", false, false);
 			progDailog.show();
 		}
 
@@ -425,6 +387,7 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 			Document doc;
 			String depto = params[0].substring(0,4);
 			String CRN = params[1];
+			index = Integer.parseInt(params[2]);
 			try {
 				doc = Jsoup
 						.connect("http://registroapps.uniandes.edu.co/scripts/adm_con_horario1_joomla.php?depto="+depto)
@@ -432,33 +395,36 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 						.get();
 
 				Elements links = doc.select("font:containsOwn("+CRN+")");
-				Elements tds = links.parents().first().siblingElements();
-				System.out.println("Done");
-				System.out.println();
-				String crn = "";
-				String cod = "";
-				String titulo = "";
-				String cupo = "";
-				String inscritos = "";
-				String disponibles = "";
-				String seccion = "";
-				String credits = "";
-				System.out.println("tds size: "+tds.size());
-				if (tds!=null) {
-					if (!tds.isEmpty()) {
-						crn = links.parents().first().text();
-						cod = tds.get(0).text();
-						seccion = tds.get(1).text();
-						credits = tds.get(2).text();
-						titulo = tds.get(3).text();
-						cupo = tds.get(4).text();
-						inscritos = tds.get(5).text();
-						disponibles = tds.get(6).text();
-						searched = new Course(crn, cod, seccion, credits, titulo, cupo, inscritos, disponibles);
+				if(links!=null && !links.isEmpty())
+				{
+					Elements tds = links.parents().first().siblingElements();
+					System.out.println("Done");
+					System.out.println();
+					String crn = "";
+					String cod = "";
+					String titulo = "";
+					String cupo = "";
+					String inscritos = "";
+					String disponibles = "";
+					String seccion = "";
+					String credits = "";
+					System.out.println("tds size: "+tds.size());
+					if (tds!=null) {
+						if (!tds.isEmpty()) {
+							crn = links.parents().first().text();
+							cod = tds.get(0).text();
+							seccion = tds.get(1).text();
+							credits = tds.get(2).text();
+							titulo = tds.get(3).text();
+							cupo = tds.get(4).text();
+							inscritos = tds.get(5).text();
+							disponibles = tds.get(6).text();
+							searched = new Course(crn, cod, seccion, credits, titulo, cupo, inscritos, disponibles,updateLastUpdate());
+						}
 					}
+					System.out.println("CRN: "+crn+", Código: "+cod+", Sección: "+seccion+", Créditos: "+credits+
+							", Título: "+titulo+"\n\tCupo total: "+cupo+", Inscritos: "+inscritos+", Disponibles: "+disponibles);
 				}
-				System.out.println("CRN: "+crn+", Código: "+cod+", Sección: "+seccion+", Créditos: "+credits+
-						", Título: "+titulo+"\n\tCupo total: "+cupo+", Inscritos: "+inscritos+", Disponibles: "+disponibles);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -467,9 +433,24 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 		}
 
 		@Override
-		protected void onPostExecute(Course unused) {
-			super.onPostExecute(unused);
+		protected void onPostExecute(Course c) {
+			super.onPostExecute(c);
 			progDailog.dismiss();
+			if (c!=null) { //if the HTML document does contain a course with the CRN and Depto given
+				if (index ==-1) { //the index is -1, which means it's a new course it's going to add
+					monitored.add(c);
+					System.out.println("Se agregó un curso ("+monitored.size()+" total):\n"+c.toString());
+					saveState();
+				}
+				else 
+				{ //the index is something else, so it's updating the monitored.
+					monitored.set(index, c);
+					System.out.println("Se actualizó el curso ("+c.toString()+")");
+					saveState();
+				}
+			}
+			else //if the course is not found within the HTML document
+				Toast.makeText(context, "No se encontró el curso.\nVerifique los datos e intente nuevamente.", Toast.LENGTH_LONG).show();
 		}	
 
 	}
@@ -493,11 +474,27 @@ public class MonitoredCoursesActivity extends ListActivity implements OnRefreshL
 		case R.id.action_details:
 			AlertDialog.Builder builder = new AlertDialog.Builder( new ContextThemeWrapper(this, android.R.style.Theme_Holo_Light_Dialog));
 
-
+			
 			LayoutInflater inflater = (LayoutInflater) context.getSystemService(LAYOUT_INFLATER_SERVICE);
 			View layout = inflater.inflate(R.layout.activity_course_details,null);
 			builder.setView(layout);
+			TextView txtTitle = (TextView) layout.findViewById(R.id.txtTituloDet);
+			TextView txtCourseCode = (TextView) layout.findViewById(R.id.txtCourseCodeDet);
+			TextView txtSection = (TextView) layout.findViewById(R.id.txtSectionDet);
+			TextView txtTaken = (TextView) layout.findViewById(R.id.txtInscritosDet);
+			TextView txtRemaining = (TextView) layout.findViewById(R.id.txtRemainingDet);
+			TextView txtCRN = (TextView) layout.findViewById(R.id.txtCRNDet);
+			TextView txtCredits = (TextView) layout.findViewById(R.id.txtCreditsDet);
 
+
+			// 4. Set the text for textView 
+			txtTitle.setText(obj.getTitulo());
+			txtCourseCode.setText(obj.getCod());
+			txtSection.setText(context.getString(R.string.section)+" "+obj.getSeccion());
+			txtTaken.setText(context.getString(R.string.taken)+" "+obj.getInscritos());
+			txtRemaining.setText(context.getString(R.string.remaining)+" "+obj.getDisponibles());
+			txtCRN.setText(context.getString(R.string.add_crn)+" "+obj.getCRN());
+			txtCredits.setText(context.getString(R.string.credits)+" "+obj.getCredits());
 			builder.setTitle(R.string.details);
 			builder.show();
 			return true;

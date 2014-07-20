@@ -10,7 +10,10 @@
     <string name="section">Sección:</string>
     <string name="crn">CRN:</string>
     <string name="empty_list">No has agregado cursos.</string>
+    <string name="taken">Inscritos:</string>
     <string name="remaining">Cupos restantes:</string>
+    <string name="total">Cupos totales:</string>
+    <string name="credits">Créditos:</string>
     <string name="last_update">Última actualización:</string>
     <string name="add_course">Agregar</string>
     <string name="por_crn">Por CRN:</string>

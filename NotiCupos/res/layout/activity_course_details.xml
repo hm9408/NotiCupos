@@ -1,24 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="top|center"
-    android:orientation="vertical" >
+    android:layout_height="wrap_content"
+    android:columnCount="1"
+    android:orientation="vertical"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
+    android:paddingTop="15dp"
+    android:paddingBottom="15dp"
+    android:textIsSelectable="true" >
 
     <TextView
-        android:id="@+id/txtAppName"
+        android:id="@+id/txtTituloDet"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="//TODO"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="40sp" />
+        android:layout_gravity="left|top"
+        android:textSize="25sp" />
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="2" >
+
+        <TextView
+            android:id="@+id/txtCourseCodeDet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:layout_marginBottom="2dp"
+            android:paddingRight="5dp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/txtSectionDet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_column="1"
+            android:layout_gravity="center"
+            android:layout_row="0"
+            android:text="@string/section"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    </GridLayout>
 
     <TextView
-        android:id="@+id/txtCreator"
+        android:id="@+id/txtInscritosDet"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Mostrar horario"
+        android:layout_marginRight="68dp"
+        android:text="@string/taken"
         android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/txtRemainingDet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="68dp"
+        android:text="@string/remaining"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="2" >
+
+        <TextView
+            android:id="@+id/txtCRNDet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/crn"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/txtCreditsDet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_column="1"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_row="0"
+            android:text="@string/credits"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    </GridLayout>
 
 </LinearLayout>

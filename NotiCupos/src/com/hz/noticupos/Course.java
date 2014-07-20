@@ -27,8 +27,10 @@ public class Course implements Serializable{
 	
 	private String disponibles;
 	
+	private String lastUpd;
 	
-	public Course(String cRN, String cod, String seccion, String credits, String titulo, String cupo, String inscritos, String disponibles) {
+	
+	public Course(String cRN, String cod, String seccion, String credits, String titulo, String cupo, String inscritos, String disponibles, String string) {
 		CRN = cRN;
 		this.cod = cod;
 		this.depto = cod.substring(0, 4);
@@ -95,6 +97,16 @@ public class Course implements Serializable{
 		return cupo;
 	}
 	
+	public String getLastUpd() {
+		return lastUpd;
+	}
+
+
+	public void setLastUpd(String lastUpd) {
+		this.lastUpd = lastUpd;
+	}
+
+
 	public String toString()
 	{
 		return "Código: "+cod+", nombre: "+titulo+", CRN: "+CRN+", Departamento: "+depto;

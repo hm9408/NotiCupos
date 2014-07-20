@@ -50,7 +50,7 @@ public class MyListAdapter extends ArrayAdapter {
 		}
 
 
-		TextView txtCourseName = (TextView) convertView.findViewById(R.id.txtCourseName);
+		TextView txtCourseCode = (TextView) convertView.findViewById(R.id.txtCourseCode);
 		TextView txtRemaining = (TextView) convertView.findViewById(R.id.txtRemaining);
 		TextView txtTitle = (TextView) convertView.findViewById(R.id.txtTitulo);
 		TextView txtSection = (TextView) convertView.findViewById(R.id.txtSection);
@@ -59,7 +59,7 @@ public class MyListAdapter extends ArrayAdapter {
 
 
 		// 4. Set the text for textView 
-		txtCourseName.setText(itemsArrayList.get(position).getCod());
+		txtCourseCode.setText(itemsArrayList.get(position).getCod());
 		txtRemaining.setText(context.getString(R.string.remaining)+" "+itemsArrayList.get(position).getDisponibles());
 		txtTitle.setText(itemsArrayList.get(position).getTitulo());
 		txtSection.setText(context.getString(R.string.section)+" "+itemsArrayList.get(position).getSeccion());
@@ -72,7 +72,7 @@ public class MyListAdapter extends ArrayAdapter {
 
 	public String lastUpdate()
 	{
-		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 		Date d= new Date();
 		return sdf.format(d);
 	}
